@@ -1,0 +1,6 @@
+We got the drive train working! Here's how we got there:
+1. We installed the NavX2 to the RoboRIO, so we have a working gyro.
+2. We updated CAN values in our code so that it communicates properly.
+3. We got many errors when trying to run, so we changed the gear ratios from 0 to a random number.
+4. We also commented out the path planner methods since they were not initialized.
+5. Basically, a lot of bug fixing did the trick. 
