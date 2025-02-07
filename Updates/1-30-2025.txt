@@ -4,3 +4,11 @@ We got the drive train working! Here's how we got there:
 3. We got many errors when trying to run, so we changed the gear ratios from 0 to a random number.
 4. We also commented out the path planner methods since they were not initialized.
 5. Basically, a lot of bug fixing did the trick. 
+
+
+
+
+
+been digging around in the code, i think we could be missing important lines of code to do things, not sure what kind of code but we might need some
+also saw something in Absolutedrive.java about polar angles, might have something to do with the absolute encoder, been trying some diffrent
+encoder values aswell
