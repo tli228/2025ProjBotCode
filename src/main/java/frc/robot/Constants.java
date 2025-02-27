@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.config.PIDConstants;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import swervelib.math.Matter;
@@ -22,7 +25,63 @@ public final class Constants
   public static final double ROBOT_MASS = (148 - 20.3) * 0.453592; // 32lbs * kg per pound
   public static final Matter CHASSIS    = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
   public static final double LOOP_TIME  = 0.13; //s, 20ms + 110ms sprk max velocity lag
-  public static final double MAX_SPEED  = Units.feetToMeters(14.5);
+  public static final double MAX_SPEED  = Units.feetToMeters(15.1);
+
+  public static class CANConfig {
+    public static final int END_EFFECTOR_MOTOR = 22;
+    public static final int END_EFFECTOR_TILT = 23;
+    public static final int END_EFFECTOR_FINGER = 24;
+    public static final int END_EFFECTOR_ALGAE = 25;
+    public static final int ELEVATOR_LEFT = 26;
+    public static final int ELEVATOR_RIGHT = 27;
+    public static final int ALGAE_ROLLERS = 28;
+    public static final int ALGAE_TILT = 29;
+    public static final int CLIMB_WINCH = 30;
+    public static final int CLIMB_GRAB = 31;
+
+    public static final int LIMIT_SWITCH_CHANNEL = 0;
+  }
+
+  public static class DrivetrainConfig {
+    public static final double MAX_DRIVE_SPEED = 10.0; // m/s
+    public static final double MAX_TURN_SPEED = 200.0; // deg/s
+    public static final double SLOWMODE_FACTOR = 0.4;
+    public static final PIDConstants DRIVE_PID = new PIDConstants(0.5, 0, 0);
+    public static final PIDConstants TURN_PID = new PIDConstants(0.5, 0, 0);
+  }
+
+  public static class SystemConfig {
+    public static final PIDController PIVOT_PID = new PIDController(0.1, 0, 0);
+    public static final PIDController SHOOTER_PID = new PIDController(0.1, 0, 0);
+    public static final PIDController ELEVATOR_PID = new PIDController(0.1, 0, 0);
+    public static final double PIVOT_TOLERANCE = 2; // deg
+    public static final double SHOOTER_TOLERANCE = 2; // deg
+    public static final double ELEVATOR_TOLERANCE = 0.1; // m
+
+    public static final double ELEVATOR_SPEED = 0.5;
+    public static final double PIVOT_SPEED = 0.5;
+    public static final double SHOOTER_SPEED = 0.5;
+    public static final double GRABBER_SPEED = 0.5;
+    public static final double CORAL_INTAKE_SPEED = 0.5;
+    public static final double FLYWHEEL_PROCESSOR_SPEED = 0.2;
+    public static final double FLYWHEEL_NET_SPEED = 0.8;
+    public static final double INDEXER_SPEED = 0.5;
+
+    public static final double PIVOT_CONVERSION = 1;
+    public static final double ELEVATOR_CONVERSION = 1;
+    public static final double SHOOTER_CONVERSION = 1;
+
+    // seconds
+    public static final double SHOOTER_SPINUP_TIME = 2.0;
+    public static final double SHOOTER_SHOOT_TIME = 2.0;
+    public static final double SHOOTER_INTAKE_TIME = 0.5;
+    public static final double CORAL_INTAKE_TIME = 1.0;
+    public static final double CORAL_OUTTAKE_TIME = 1.0;
+    public static final double GRABBER_TIME = 3.0;
+
+    public static final double CLIMBER_DEFAULT_POSITION = 0;
+    public static final double CLIMBER_CLIMB_POSITION = 0.5;
+  }
   // Maximum speed of the robot in meters per second, used to limit acceleration.
 
 //  public static final class AutonConstants

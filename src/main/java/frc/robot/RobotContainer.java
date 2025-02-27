@@ -17,22 +17,61 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.subsystems.TestSubsystem;
 import java.io.File;
 import swervelib.SwerveInputStream;
 
-/**
- * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
+
+
+
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.*;
+import frc.robot.subsystems.*;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.drive.DriveSubsystem;
+
+
+
+
+ /* This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
  * little robot logic should actually be handled in the {@link Robot} periodic methods (other than the scheduler calls).
  * Instead, the structure of the robot (including subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer
 {
 
+  public static PowerDistribution pdh;
+
+  public static DriveSubsystem driveTrain;
+  public static ClimberSubsystem climber;
+  public static AlgaeIntakeSubsystem algaeIntake;
+  public static ElevatorSubsystem elevator;
+  public static EndEffectorSubsystem endEffector;
+
+  public static CommandXboxController driverController;
+  public static CommandXboxController operatorController;
+
+  private final SendableChooser<Command> autoChooser;
+
+
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final         CommandXboxController driverXbox = new CommandXboxController(0);
+  //adding a operator controller and trying to get it to work
+  final       CommandXboxController operatorXbox = new CommandXboxController(1);
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem       drivebase  = new SwerveSubsystem();
-
+  private final TestSubsystem         testmotor = new TestSubsystem();
+  
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
    */
@@ -90,8 +129,31 @@ public class RobotContainer
   {
     // Configure the trigger bindings
     configureBindings();
+    pdh = new PowerDistribution();
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
+    
+    driveTrain = new DriveSubsystem();
+    climber = new ClimberSubsystem();
+    algaeIntake = new AlgaeIntakeSubsystem();
+    elevator = new ElevatorSubsystem();
+    endEffector = new EndEffectorSubsystem();
+
+    driverController = new CommandXboxController(OperatorConstants.kDriverControllerPort);
+    operatorController = new CommandXboxController(OperatorConstants.kOperatorControllerPort);
+
+    autoChooser = AutoBuilder.buildAutoChooser();
+    autoChooser.setDefaultOption("NOTHING!!!", new InstantCommand());
+ 
+    driveTrain.setDefaultCommand(new RunCommand(
+      //left joystick controls translation
+      //right joystick controls rotation of the robot
+      () -> driveTrain.drive(
+        -MathUtil.applyDeadband(driverController.getLeftY(), OperatorConstants.kDriverDeadband), 
+        -MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.kDriverDeadband), 
+        -MathUtil.applyDeadband(driverController.getRightX(), OperatorConstants.kDriverDeadband), 
+        true), 
+      driveTrain));
   }
 
   /**
@@ -103,6 +165,25 @@ public class RobotContainer
    */
   private void configureBindings()
   {
+     // Algae Intake Commands
+     operatorController.a().whileTrue(new DeployArmCommand(0.1)); // TODO change speed and button
+     operatorController.b().whileTrue(new RetractArmCommand(0.1));
+     operatorController.leftBumper().whileTrue(new IntakeRollerBar(0.1));
+     operatorController.rightBumper().whileTrue(new OuttakeRollerBar(0.1));
+ 
+     // Climber
+     operatorController.leftTrigger().whileTrue(new ExtendWinchCommand(0.1));
+     operatorController.rightTrigger().whileTrue(new RetractWinchCommand(0.1));
+     operatorController.povDown().whileTrue(new GrabCageCommand(0.1));
+ 
+     // Elevator
+     operatorController.povUp().whileTrue(new ElevatorUpCommand(0.1));
+     operatorController.povDown().whileTrue(new ElevatorDownCommand(0.1));
+ 
+     // End Effector
+     operatorController.povLeft().whileTrue(new IntakeCommand(0.1));
+     operatorController.povRight().whileTrue(new ShootCommand(0.1));
+     operatorController.povCenter().whileTrue(new TiltCommand(0.1));
 
     Command driveFieldOrientedDirectAngle      = drivebase.driveFieldOriented(driveDirectAngle);
     Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
@@ -131,13 +212,15 @@ public class RobotContainer
     if (DriverStation.isTest())
     {
       drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command above!
-
-      driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
+     
+      operatorXbox.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverXbox.y().whileTrue(drivebase.driveToDistanceCommand(1.0, 0.2));
       driverXbox.start().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.back().whileTrue(drivebase.centerModulesCommand());
       driverXbox.leftBumper().onTrue(Commands.none());
       driverXbox.rightBumper().onTrue(Commands.none());
+      driverXbox.a().whileTrue(testmotor.manualSpeed(1.0));
+      driverXbox.b().whileTrue(testmotor.stopMotors());
     } else
     {
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
@@ -148,7 +231,7 @@ public class RobotContainer
       //                         );
       driverXbox.start().whileTrue(Commands.none());
       driverXbox.back().whileTrue(Commands.none());
-      driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
+      operatorXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverXbox.rightBumper().onTrue(Commands.none());
     }
 
@@ -169,4 +252,11 @@ public class RobotContainer
   {
     drivebase.setMotorBrake(brake);
   }
+  public Command getAutonomousCommand()
+  {
+    // An example command will be run in autonomous
+    return drivebase.getAutonomousCommand("Testpath");
+  }
+  //code stolen from example from github
 }
+
