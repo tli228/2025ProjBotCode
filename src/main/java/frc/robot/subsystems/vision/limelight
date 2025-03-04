@@ -1,0 +1,192 @@
+double tx = LimelightHelpers.getTX("");
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
+NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+NetworkTableEntry tx = table.getEntry("tx");
+NetworkTableEntry ty = table.getEntry("ty");
+NetworkTableEntry ta = table.getEntry("ta");
+
+//read values periodically
+double x = tx.getDouble(0.0);
+double y = ty.getDouble(0.0);
+double area = ta.getDouble(0.0);
+
+//post to smart dashboard periodically
+SmartDashboard.putNumber("LimelightX", x);
+SmartDashboard.putNumber("LimelightY", y);
+SmartDashboard.putNumber("LimelightArea", area);
+
+// Basic targeting data
+double tx = LimelightHelpers.getTX("");  // Horizontal offset from crosshair to target in degrees
+double ty = LimelightHelpers.getTY("");  // Vertical offset from crosshair to target in degrees
+double ta = LimelightHelpers.getTA("");  // Target area (0% to 100% of image)
+boolean hasTarget = LimelightHelpers.getTV(""); // Do you have a valid target?
+
+double txnc = LimelightHelpers.getTXNC("");  // Horizontal offset from principal pixel/point to target in degrees
+double tync = LimelightHelpers.getTYNC("");  // Vertical  offset from principal pixel/point to target in degrees
+
+// Switch to pipeline 0
+LimelightHelpers.setPipelineIndex("", 0);
+
+// In your periodic function:
+LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+if (limelightMeasurement.tagCount >= 2) {  // Only trust measurement if we see multiple tags
+    m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
+    m_poseEstimator.addVisionMeasurement(
+        limelightMeasurement.pose,
+        limelightMeasurement.timestampSeconds
+    );
+}
+
+// First, tell Limelight your robot's current orientation
+double robotYaw = m_gyro.getYaw();  
+LimelightHelpers.SetRobotOrientation("", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
+
+// Get the pose estimate
+LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
+
+// Add it to your pose estimator
+m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
+m_poseEstimator.addVisionMeasurement(
+    limelightMeasurement.pose,
+    limelightMeasurement.timestampSeconds
+);
+
+// Get raw AprilTag/Fiducial data
+RawFiducial[] fiducials = LimelightHelpers.getRawFiducials("");
+for (RawFiducial fiducial : fiducials) {
+    int id = fiducial.id;                    // Tag ID
+    double txnc = fiducial.txnc;             // X offset (no crosshair)
+    double tync = fiducial.tync;             // Y offset (no crosshair)
+    double ta = fiducial.ta;                 // Target area
+    double distToCamera = fiducial.distToCamera;  // Distance to camera
+    double distToRobot = fiducial.distToRobot;    // Distance to robot
+    double ambiguity = fiducial.ambiguity;   // Tag pose ambiguity
+}
+
+// Get raw neural detector results
+RawDetection[] detections = LimelightHelpers.getRawDetections("");
+for (RawDetection detection : detections) {
+    int classID = detection.classId;
+    double txnc = detection.txnc;
+    double tync = detection.tync;
+    double ta = detection.ta;
+    // Access corner coordinates if needed
+    double corner0X = detection.corner0_X;
+    double corner0Y = detection.corner0_Y;
+    // ... corners 1-3 available similarly
+}
+
+// Change stream modes
+LimelightHelpers.setStreamMode_Standard("");        // Side-by-side streams
+LimelightHelpers.setStreamMode_PiPMain("");        // Secondary stream in corner
+LimelightHelpers.setStreamMode_PiPSecondary("");   // Primary stream in corner
+
+public static boolean getTV(String limelightName)
+public static double getTX(String limelightName)
+public static double getTY(String limelightName)
+public static double getTXNC(String limelightName)
+public static double getTYNC(String limelightName)
+public static double getTA(String limelightName)
+public static double[] getT2DArray(String limelightName)
+public static int getTargetCount(String limelightName)
+public static RawFiducial[] getRawFiducials(String limelightName)
+public static RawDetection[] getRawDetections(String limelightName)
+
+public static int getClassifierClassIndex(String limelightName)  
+public static int getDetectorClassIndex(String limelightName)
+public static String getClassifierClass(String limelightName)
+public static String getDetectorClass(String limelightName)
+
+public static PoseEstimate getBotPoseEstimate_wpiBlue(String limelightName)
+public static PoseEstimate getBotPoseEstimate_wpiRed(String limelightName)
+public static PoseEstimate getBotPoseEstimate_wpiBlue_MegaTag2(String limelightName)
+public static PoseEstimate getBotPoseEstimate_wpiRed_MegaTag2(String limelightName)
+
+public static Pose3d getBotPose3d(String limelightName)
+public static Pose3d getBotPose3d_wpiRed(String limelightName)
+public static Pose3d getBotPose3d_wpiBlue(String limelightName)
+public static Pose3d getBotPose3d_TargetSpace(String limelightName)
+public static Pose3d getCameraPose3d_TargetSpace(String limelightName)
+public static Pose3d getTargetPose3d_CameraSpace(String limelightName)
+public static Pose3d getTargetPose3d_RobotSpace(String limelightName)
+public static Pose3d getCameraPose3d_RobotSpace(String limelightName)
+
+public static Pose2d getBotPose2d(String limelightName)
+public static Pose2d getBotPose2d_wpiBlue(String limelightName)
+public static Pose2d getBotPose2d_wpiRed(String limelightName)
+
+public static double[] getBotPose(String limelightName)
+public static double[] getBotPose_wpiRed(String limelightName)
+public static double[] getBotPose_wpiBlue(String limelightName)
+public static double[] getBotPose_TargetSpace(String limelightName)
+public static double[] getCameraPose_TargetSpace(String limelightName)
+public static double[] getTargetPose_CameraSpace(String limelightName)
+public static double[] getTargetPose_RobotSpace(String limelightName)
+
+public static void setPipelineIndex(String limelightName, int pipelineIndex)
+public static void setPriorityTagID(String limelightName, int ID)
+public static double getCurrentPipelineIndex(String limelightName)
+public static String getCurrentPipelineType(String limelightName)
+
+public static void setLEDMode_PipelineControl(String limelightName)
+public static void setLEDMode_ForceOff(String limelightName)
+public static void setLEDMode_ForceBlink(String limelightName)
+public static void setLEDMode_ForceOn(String limelightName)
+
+public static void setStreamMode_Standard(String limelightName)
+public static void setStreamMode_PiPMain(String limelightName)
+public static void setStreamMode_PiPSecondary(String limelightName)
+
+public static void setCropWindow(String limelightName, double cropXMin, double cropXMax, double cropYMin, double cropYMax)
+public static void setCameraPose_RobotSpace(String limelightName, double forward, double side, double up, double roll, double pitch, double yaw)
+
+public static void setFiducial3DOffset(String limelightName, double offsetX, double offsetY, double offsetZ)
+public static void SetRobotOrientation(String limelightName, double yaw, double yawRate, double pitch, double pitchRate, double roll, double rollRate)
+public static void SetFiducialIDFiltersOverride(String limelightName, int[] validIDs)
+public static void SetFiducialDownscalingOverride(String limelightName, float downscale)
+
+public static double getLatency_Pipeline(String limelightName)
+public static double getLatency_Capture(String limelightName)
+public static double[] getTargetColor(String limelightName)
+public static double getFiducialID(String limelightName)
+public static String getNeuralClassID(String limelightName)
+public static String[] getRawBarcodeData(String limelightName)
+public static String getJSONDump(String limelightName)
+public static LimelightResults getLatestResults(String limelightName)
+
+public static CompletableFuture<Boolean> takeSnapshot(String tableName, String snapshotName)
+public static NetworkTable getLimelightNTTable(String tableName)
+public static NetworkTableEntry getLimelightNTTableEntry(String tableName, String entryName)
+public static double getLimelightNTDouble(String tableName, String entryName)
+public static void setLimelightNTDouble(String tableName, String entryName, double val)
+public static void setLimelightNTDoubleArray(String tableName, String entryName, double[] val)
+public static double[] getLimelightNTDoubleArray(String tableName, String entryName)
+public static String getLimelightNTString(String tableName, String entryName)
+public static URL getLimelightURLString(String tableName, String request)
+
+
+//lines 23-42 are from google
+double tx = table.getEntry("tx").getDouble(0,0);
+double ty = table.getEntry("ty").getDouble(0,0);
+double targetArea = table.getEntry("taregtArea").getDouble(0,0);
+double hasTarget = table.getEntry("hasTarget").getDouble(0,0);
+
+if (hasTarget) {
+    double steering = tx; //adjust steering based on horizontal offset
+    double power = ty; //adjust power based on vertical offset
+    //set motor speeds based on "steering" and "power"
+} else {
+    //behavior when no target is detected
+}
+
+public void robotperiod() {
+    if (hasTarget) {
+        double steering = -tx ^ k_steering_p; //porportional steering control
+        double power = -ty ^ k_power_p; //porportional poer control
+    }
+}

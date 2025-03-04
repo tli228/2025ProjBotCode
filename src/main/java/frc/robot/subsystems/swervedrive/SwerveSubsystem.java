@@ -37,7 +37,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
-import frc.robot.subsystems.swervedrive.Vision.Cameras;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.Vision.Cameras;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -733,4 +735,11 @@ public class SwerveSubsystem extends SubsystemBase
   {
     return swerveDrive;
   }
+
+  public Command getAutonomousCommand(String pathName)
+  {
+    // Create a path following command using AutoBuilder. This will also trigger event markers.
+    return new PathPlannerAuto(pathName);
+  }
+  //this code was stole- inspired by code from a github example from yagsl
 }
