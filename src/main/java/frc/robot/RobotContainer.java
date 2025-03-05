@@ -25,8 +25,17 @@ import swervelib.SwerveInputStream;
 
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.*;
-import frc.robot.subsystems.*;
+import frc.robot.subsystems.algaeintake.*;
+import frc.robot.subsystems.climb.*;
+import frc.robot.subsystems.elevator.*;
+import frc.robot.subsystems.endeffector.*;
+import frc.robot.subsystems.swervedrive.*;
+import frc.robot.commands.AlgaeIntakeCommands.*;
+import frc.robot.commands.ClimberCommands.*;
+import frc.robot.commands.ElevatorCommands.*;
+import frc.robot.commands.EndEffectorCommands.*;
+import frc.robot.commands.SwervedriveCommands.auto.*;
+import frc.robot.commands.SwervedriveCommands.drivebase.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
@@ -38,7 +47,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.drive.DriveSubsystem;
+// import frc.robot.subsystems.drive.DriveSubsystem;
 
 
 
@@ -52,7 +61,7 @@ public class RobotContainer
 
   public static PowerDistribution pdh;
 
-  public static DriveSubsystem driveTrain;
+  public static SwerveSubsystem driveTrain;
   public static ClimberSubsystem climber;
   public static AlgaeIntakeSubsystem algaeIntake;
   public static ElevatorSubsystem elevator;
@@ -133,14 +142,14 @@ public class RobotContainer
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
     
-    driveTrain = new DriveSubsystem();
+    driveTrain = new SwerveSubsystem();
     climber = new ClimberSubsystem();
     algaeIntake = new AlgaeIntakeSubsystem();
     elevator = new ElevatorSubsystem();
     endEffector = new EndEffectorSubsystem();
 
-    driverController = new CommandXboxController(OperatorConstants.kDriverControllerPort);
-    operatorController = new CommandXboxController(OperatorConstants.kOperatorControllerPort);
+    driverController = new CommandXboxController(OperatorConstants.DRIVER_PORT);
+    operatorController = new CommandXboxController(OperatorConstants.OPERATOR_PORT);
 
     autoChooser = AutoBuilder.buildAutoChooser();
     autoChooser.setDefaultOption("NOTHING!!!", new InstantCommand());
@@ -148,11 +157,12 @@ public class RobotContainer
     driveTrain.setDefaultCommand(new RunCommand(
       //left joystick controls translation
       //right joystick controls rotation of the robot
-      () -> driveTrain.drive(
-        -MathUtil.applyDeadband(driverController.getLeftY(), OperatorConstants.kDriverDeadband), 
-        -MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.kDriverDeadband), 
-        -MathUtil.applyDeadband(driverController.getRightX(), OperatorConstants.kDriverDeadband), 
-        true), 
+      () -> driveTrain.driveToDistanceCommand(
+        -MathUtil.applyDeadband(driverController.getLeftY(), OperatorConstants.DEADBAND), 
+        -MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.DEADBAND) 
+        // -MathUtil.applyDeadband(driverController.getRightX(), OperatorConstants.DEADBAND), 
+        // true), 
+        ),
       driveTrain));
   }
 

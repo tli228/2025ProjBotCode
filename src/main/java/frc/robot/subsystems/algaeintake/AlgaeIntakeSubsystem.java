@@ -1,10 +1,10 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.algaeintake;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import frc.robot.Constants.AlgaeIntakeConstants;
+import frc.robot.Constants.CANConfig;
 
 public class AlgaeIntakeSubsystem extends SubsystemBase
 {
@@ -13,8 +13,8 @@ public class AlgaeIntakeSubsystem extends SubsystemBase
 
     public AlgaeIntakeSubsystem()
     {
-        algaeRoller = new SparkMax(AlgaeIntakeConstants.kAlgaeRollerCANId, MotorType.kBrushless);
-        algaeTilt = new SparkMax(AlgaeIntakeConstants.kAlgaeTiltCANId, MotorType.kBrushless);
+        algaeRoller = new SparkMax(CANConfig.ALGAE_ROLLERS, MotorType.kBrushless);
+        algaeTilt = new SparkMax(CANConfig.ALGAE_TILT, MotorType.kBrushless);
     }
 
     public void setSpeedRoller(double speed) 

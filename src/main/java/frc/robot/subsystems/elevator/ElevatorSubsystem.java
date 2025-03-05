@@ -1,10 +1,10 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.elevator;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.CANConfig;
 
 public class ElevatorSubsystem extends SubsystemBase
 {
@@ -13,8 +13,8 @@ public class ElevatorSubsystem extends SubsystemBase
 
     public ElevatorSubsystem()
     {
-        elevator1 = new SparkMax(ElevatorConstants.kElevator1CANId, MotorType.kBrushless);
-        elevator2 = new SparkMax(ElevatorConstants.kElevator2CANId, MotorType.kBrushless);
+        elevator1 = new SparkMax(CANConfig.ELEVATOR_LEFT, MotorType.kBrushless);
+        elevator2 = new SparkMax(CANConfig.ELEVATOR_RIGHT, MotorType.kBrushless);
     }
 
     public void setSpeedElevator1(double speed) 
