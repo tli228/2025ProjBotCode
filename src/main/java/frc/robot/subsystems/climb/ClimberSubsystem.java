@@ -57,6 +57,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.CANConfig;
@@ -96,7 +98,8 @@ public class ClimberSubsystem extends SubsystemBase
     @Override
     public void periodic()
     {
-        
+        SmartDashboard.putNumber("Climber Servo Position", climberServo.get());
+        SmartDashboard.putNumber("Climber Winch Position", climberWinch.getEncoder().getPosition());
     }
 }
 

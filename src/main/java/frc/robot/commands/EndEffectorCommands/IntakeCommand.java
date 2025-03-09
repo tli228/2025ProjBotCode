@@ -15,18 +15,18 @@ public class IntakeCommand extends Command
 
     @Override
     public void initialize() {
-        RobotContainer.endEffector.setSpeedEndEffectorAlgae(0);
+        RobotContainer.endEffector.setSpeedEndEffectorIntake(0);
     }
 
     @Override
     public void execute() 
     {
-        RobotContainer.endEffector.setSpeedEndEffectorAlgae(speed);
+        RobotContainer.endEffector.setSpeedEndEffectorIntake(speed);
     }
 
     @Override
     public void end(boolean interrupted) {
-        RobotContainer.endEffector.setSpeedEndEffectorAlgae(0);
+        RobotContainer.endEffector.setSpeedEndEffectorIntake(0);
     }
 
     @Override

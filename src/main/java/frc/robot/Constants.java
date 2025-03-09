@@ -28,16 +28,13 @@ public final class Constants
   public static final double MAX_SPEED  = Units.feetToMeters(15.1);
 
   public static class CANConfig {
-    public static final int END_EFFECTOR_MOTOR = 22;
-    public static final int END_EFFECTOR_TILT = 23;
-    public static final int END_EFFECTOR_FINGER = 24;
-    public static final int END_EFFECTOR_ALGAE = 25;
-    public static final int ELEVATOR_LEFT = 26;
-    public static final int ELEVATOR_RIGHT = 27;
-    public static final int ALGAE_ROLLERS = 28;
-    public static final int ALGAE_TILT = 29;
-    public static final int CLIMB_WINCH = 30;
-    public static final int CLIMB_GRAB = 31;
+    public static final int END_EFFECTOR_MOTOR = 30;
+    public static final int END_EFFECTOR_TILT = 31;
+    public static final int END_EFFECTOR_INTAKE = 27; //(The funnel motor)
+    public static final int ELEVATOR_LEFT = 25;
+    public static final int ELEVATOR_RIGHT = 29;
+    public static final int CLIMB_WINCH = 26;
+    public static final int CLIMB_GRAB = 32;
 
     public static final int LIMIT_SWITCH_CHANNEL = 0;
   }

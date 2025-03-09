@@ -2,34 +2,25 @@ package frc.robot.subsystems.endeffector;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.CANConfig;
 
 public class EndEffectorSubsystem extends SubsystemBase
 {
-    private final SparkMax endEffectorAlgae;
-    private final SparkMax endEffectorFinger;
     private final SparkMax endEffectorMotor;
     private final SparkMax endEffectorTilt;
+    private final SparkMax endEffectorIntake;
 
     public EndEffectorSubsystem()
     {
-        endEffectorAlgae = new SparkMax(CANConfig.END_EFFECTOR_ALGAE, MotorType.kBrushless);
-        endEffectorFinger = new SparkMax(CANConfig.END_EFFECTOR_FINGER, MotorType.kBrushless);
         endEffectorMotor = new SparkMax(CANConfig.END_EFFECTOR_MOTOR, MotorType.kBrushless);
         endEffectorTilt = new SparkMax(CANConfig.END_EFFECTOR_TILT, MotorType.kBrushless);
-    }
-
-    public void setSpeedEndEffectorAlgae(double speed) 
-    {
-        endEffectorAlgae.set(speed);
+        endEffectorIntake = new SparkMax(CANConfig.END_EFFECTOR_INTAKE, MotorType.kBrushless);
     }
     
-    public void setSpeedEndEffectorFinger(double speed) 
-    {
-        endEffectorFinger.set(speed);
-    }
 
     public void setSpeedEndEffectorMotor(double speed) 
     {
@@ -40,10 +31,17 @@ public class EndEffectorSubsystem extends SubsystemBase
     {
         endEffectorTilt.set(speed);
     }
+    
+    public void setSpeedEndEffectorIntake(double speed){
+        endEffectorIntake.set(speed);
+    }
 
     @Override
     public void periodic()
     {
-        
+        SmartDashboard.putNumber("End Effector Encoder", endEffectorMotor.getEncoder().getPosition());
+        SmartDashboard.putNumber("End Effector Tilt", endEffectorTilt.getEncoder().getPosition());
+        SmartDashboard.putNumber("End Effector Tilt Absolute Encoder", endEffectorTilt.getAlternateEncoder().getPosition());
+        SmartDashboard.putNumber("End Effector Intake", endEffectorIntake.getEncoder().getPosition());
     }
 }
