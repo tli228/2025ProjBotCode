@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-import frc.robot.subsystems.TestSubsystem;
 import java.io.File;
 import swervelib.SwerveInputStream;
 
@@ -76,7 +75,7 @@ public class RobotContainer
   final       CommandXboxController operatorXbox = new CommandXboxController(1);
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem       drivebase  = new SwerveSubsystem();
-  private final TestSubsystem         testmotor = new TestSubsystem();
+
   
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
