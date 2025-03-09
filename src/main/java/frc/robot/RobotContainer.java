@@ -161,8 +161,14 @@ public class RobotContainer
       driveTrain));
 
     algaeIntake.setDefaultCommand(new RunCommand(() -> {}));
-    climber.setDefaultCommand(new RunCommand(() -> {}));
-    elevator.setDefaultCommand(new RunCommand(() -> {}));
+
+    climber.setDefaultCommand(new RunCommand(() -> {
+    }));
+
+    elevator.setDefaultCommand(new RunCommand(() -> {
+      elevator.setSpeed(-operatorController.getLeftY());
+    }));
+
     endEffector.setDefaultCommand(new RunCommand(() -> {}));
   }
  
@@ -175,26 +181,28 @@ public class RobotContainer
    */
   private void configureBindings()
   {
-     // Algae Intake Commands
-     operatorController.a().whileTrue(new DeployArmCommand(0.1)); // TODO change speed and button
-     operatorController.b().whileTrue(new RetractArmCommand(0.1));
-     operatorController.leftBumper().whileTrue(new IntakeRollerBar(0.1));
-     operatorController.rightBumper().whileTrue(new OuttakeRollerBar(0.1));
- 
-     // Climber
-     operatorController.leftTrigger().whileTrue(new ExtendWinchCommand(0.1));
-     operatorController.rightTrigger().whileTrue(new RetractWinchCommand(0.1));
-     operatorController.povDown().whileTrue(new GrabCageCommand(0.1));
- 
-     // Elevator
-     operatorController.povUp().whileTrue(new ElevatorUpCommand(0.1));
-     operatorController.povDown().whileTrue(new ElevatorDownCommand(0.1));
- 
-     // End Effector
-     operatorController.povLeft().whileTrue(new IntakeCommand(0.1));
-     operatorController.povRight().whileTrue(new ShootCommand(0.1));
-     operatorController.povCenter().whileTrue(new TiltCommand(0.1));
+     
+    //To do: Set Buttons, Set Speeds, Verify Directions
 
+    // Algae Intake Commands
+    operatorController.rightTrigger().onChange(new IntakeCommand(.1));
+    operatorController.leftTrigger().onChange(new ShootCommand(.1));
+ 
+    // Climber
+    operatorController.leftTrigger().whileTrue(new ExtendWinchCommand(0.1));
+    operatorController.rightTrigger().whileTrue(new RetractWinchCommand(0.1));
+    operatorController.povDown().whileTrue(new GrabCageCommand(0.1));
+ 
+    // Elevator
+    operatorController.povUp().whileTrue(new ElevatorUpCommand(0.1));
+    operatorController.povDown().whileTrue(new ElevatorDownCommand(0.1));
+ 
+    // End Effector
+    operatorController.povLeft().whileTrue(new IntakeCommand(0.1));
+    operatorController.povRight().whileTrue(new ShootCommand(0.1));
+    operatorController.povCenter().whileTrue(new TiltCommand(0.1));
+
+     
   }
 
   /**
