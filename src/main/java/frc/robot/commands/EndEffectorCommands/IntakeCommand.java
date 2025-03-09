@@ -14,17 +14,20 @@ public class IntakeCommand extends Command
     }
 
     @Override
-    public void initialize() {}
+    public void initialize() {
+        RobotContainer.endEffector.setSpeedEndEffectorAlgae(0);
+    }
 
     @Override
     public void execute() 
     {
         RobotContainer.endEffector.setSpeedEndEffectorAlgae(speed);
-        RobotContainer.endEffector.setSpeedEndEffectorFinger(speed);
     }
 
     @Override
-    public void end(boolean interrupted) {}
+    public void end(boolean interrupted) {
+        RobotContainer.endEffector.setSpeedEndEffectorAlgae(0);
+    }
 
     @Override
     public boolean isFinished() {

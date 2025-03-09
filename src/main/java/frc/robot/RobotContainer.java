@@ -25,12 +25,10 @@ import swervelib.SwerveInputStream;
 
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.subsystems.algaeintake.*;
 import frc.robot.subsystems.climb.*;
 import frc.robot.subsystems.elevator.*;
 import frc.robot.subsystems.endeffector.*;
 import frc.robot.subsystems.swervedrive.*;
-import frc.robot.commands.AlgaeIntakeCommands.*;
 import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.ElevatorCommands.*;
 import frc.robot.commands.EndEffectorCommands.*;
@@ -50,7 +48,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import frc.robot.subsystems.drive.DriveSubsystem;
 
 
-
+//https://docs.wpilib.org/en/stable/docs/software/hardware-apis/misc/addressable-leds.html
 
  /* This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
  * little robot logic should actually be handled in the {@link Robot} periodic methods (other than the scheduler calls).
@@ -63,7 +61,6 @@ public class RobotContainer
 
   public static SwerveSubsystem driveTrain;
   public static ClimberSubsystem climber;
-  public static AlgaeIntakeSubsystem algaeIntake;
   public static ElevatorSubsystem elevator;
   public static EndEffectorSubsystem endEffector;
 
@@ -144,7 +141,6 @@ public class RobotContainer
     
     driveTrain = new SwerveSubsystem();
     climber = new ClimberSubsystem();
-    algaeIntake = new AlgaeIntakeSubsystem();
     elevator = new ElevatorSubsystem();
     endEffector = new EndEffectorSubsystem();
 
@@ -160,16 +156,19 @@ public class RobotContainer
       () -> driveTrain.driveCommand(-driverController.getLeftY(), driverController.getLeftX(), driverController.getRightX()),
       driveTrain));
 
-    algaeIntake.setDefaultCommand(new RunCommand(() -> {}));
 
     climber.setDefaultCommand(new RunCommand(() -> {
     }));
 
     elevator.setDefaultCommand(new RunCommand(() -> {
-      elevator.setSpeed(-operatorController.getLeftY());
+      elevator.setSpeed(-operatorController.getLeftY()*.1); //Multiply by .1 for testing
     }));
 
-    endEffector.setDefaultCommand(new RunCommand(() -> {}));
+    endEffector.setDefaultCommand(new RunCommand(() -> {
+      endEffector.setSpeedEndEffectorTilt(-operatorController.getRightY()*.1);  //We are using this to test, the .1 is to make it go slow
+    }));
+
+
   }
  
   /**
@@ -184,24 +183,24 @@ public class RobotContainer
      
     //To do: Set Buttons, Set Speeds, Verify Directions
 
-    // Algae Intake Commands
-    operatorController.rightTrigger().onChange(new IntakeCommand(.1));
+    // Operator Controls
+    operatorController.rightTrigger().onChange(new ShootCommand(-.1));
     operatorController.leftTrigger().onChange(new ShootCommand(.1));
- 
-    // Climber
-    operatorController.leftTrigger().whileTrue(new ExtendWinchCommand(0.1));
-    operatorController.rightTrigger().whileTrue(new RetractWinchCommand(0.1));
-    operatorController.povDown().whileTrue(new GrabCageCommand(0.1));
- 
-    // Elevator
-    operatorController.povUp().whileTrue(new ElevatorUpCommand(0.1));
-    operatorController.povDown().whileTrue(new ElevatorDownCommand(0.1));
- 
-    // End Effector
-    operatorController.povLeft().whileTrue(new IntakeCommand(0.1));
-    operatorController.povRight().whileTrue(new ShootCommand(0.1));
-    operatorController.povCenter().whileTrue(new TiltCommand(0.1));
 
+    operatorController.rightBumper().onChange(new IntakeCommand(-.1));
+    operatorController.leftBumper().onChange(new IntakeCommand(.1));
+
+
+ 
+    // Driver Controls
+    driverController.y().onTrue(new InstantCommand(() -> {climber.LatchServo();}));
+    driverController.b().onTrue(new InstantCommand(() -> {climber.UnlatchServo();}));
+
+    driverController.rightTrigger().onChange(new ExtendWinchCommand(-.1));
+    driverController.leftTrigger().onChange(new ExtendWinchCommand(.1));
+
+    driverController.rightTrigger().onChange(new GrabCageCommand(.1));
+    driverController.leftTrigger().onChange(new GrabCageCommand(-1.));
      
   }
 
