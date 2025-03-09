@@ -157,15 +157,15 @@ public class RobotContainer
     driveTrain.setDefaultCommand(new RunCommand(
       //left joystick controls translation
       //right joystick controls rotation of the robot
-      () -> driveTrain.driveToDistanceCommand(
-        -MathUtil.applyDeadband(driverController.getLeftY(), OperatorConstants.DEADBAND), 
-        -MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.DEADBAND) 
-        // -MathUtil.applyDeadband(driverController.getRightX(), OperatorConstants.DEADBAND), 
-        // true), 
-        ),
+      () -> driveTrain.driveCommand(-driverController.getLeftY(), driverController.getLeftX(), driverController.getRightX()),
       driveTrain));
-  }
 
+    algaeIntake.setDefaultCommand(new RunCommand(() -> {}));
+    climber.setDefaultCommand(new RunCommand(() -> {}));
+    elevator.setDefaultCommand(new RunCommand(() -> {}));
+    endEffector.setDefaultCommand(new RunCommand(() -> {}));
+  }
+ 
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary predicate, or via the
@@ -194,56 +194,6 @@ public class RobotContainer
      operatorController.povLeft().whileTrue(new IntakeCommand(0.1));
      operatorController.povRight().whileTrue(new ShootCommand(0.1));
      operatorController.povCenter().whileTrue(new TiltCommand(0.1));
-
-    Command driveFieldOrientedDirectAngle      = drivebase.driveFieldOriented(driveDirectAngle);
-    Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
-    Command driveRobotOrientedAngularVelocity  = drivebase.driveFieldOriented(driveRobotOriented);
-    Command driveSetpointGen = drivebase.driveWithSetpointGeneratorFieldRelative(
-        driveDirectAngle);
-    Command driveFieldOrientedDirectAngleKeyboard      = drivebase.driveFieldOriented(driveDirectAngleKeyboard);
-    Command driveFieldOrientedAnglularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
-    Command driveSetpointGenKeyboard = drivebase.driveWithSetpointGeneratorFieldRelative(
-        driveDirectAngleKeyboard);
-
-    if (RobotBase.isSimulation())
-    {
-      drivebase.setDefaultCommand(driveFieldOrientedDirectAngleKeyboard);
-    } else
-    {
-      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
-    }
-
-    if (Robot.isSimulation())
-    {
-      driverXbox.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
-      driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
-
-    }
-    if (DriverStation.isTest())
-    {
-      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command above!
-     
-      operatorXbox.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-      driverXbox.y().whileTrue(drivebase.driveToDistanceCommand(1.0, 0.2));
-      driverXbox.start().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      driverXbox.back().whileTrue(drivebase.centerModulesCommand());
-      driverXbox.leftBumper().onTrue(Commands.none());
-      driverXbox.rightBumper().onTrue(Commands.none());
-      driverXbox.a().whileTrue(testmotor.manualSpeed(1.0));
-      driverXbox.b().whileTrue(testmotor.stopMotors());
-    } else
-    {
-      driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
-      // driverXbox.b().whileTrue(
-      //     drivebase.driveToPose(
-      //         new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
-      //                         );
-      driverXbox.start().whileTrue(Commands.none());
-      driverXbox.back().whileTrue(Commands.none());
-      operatorXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-      driverXbox.rightBumper().onTrue(Commands.none());
-    }
 
   }
 
