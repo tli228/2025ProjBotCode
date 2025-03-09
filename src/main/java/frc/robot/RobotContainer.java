@@ -183,11 +183,12 @@ public class RobotContainer
     //To do: Set Buttons, Set Speeds, Verify Directions
 
     // Operator Controls
-    operatorController.rightTrigger().onChange(new ShootCommand(-.1));
-    operatorController.leftTrigger().onChange(new ShootCommand(.1));
+    
+    operatorController.rightTrigger().whileTrue(new ShootCommand(-.1));
+    operatorController.leftTrigger().whileTrue(new ShootCommand(.1));
 
-    operatorController.rightBumper().onChange(new IntakeCommand(-.1));
-    operatorController.leftBumper().onChange(new IntakeCommand(.1));
+    operatorController.rightBumper().whileTrue(new IntakeCommand(-.1));
+    operatorController.leftBumper().whileTrue(new IntakeCommand(.1));
 
 
  
@@ -195,11 +196,11 @@ public class RobotContainer
     driverController.y().onTrue(new InstantCommand(() -> {climber.LatchServo();}));
     driverController.b().onTrue(new InstantCommand(() -> {climber.UnlatchServo();}));
 
-    driverController.rightTrigger().onChange(new ExtendWinchCommand(-.1));
-    driverController.leftTrigger().onChange(new ExtendWinchCommand(.1));
+    driverController.rightTrigger().whileTrue(new ExtendWinchCommand(-.1));
+    driverController.leftTrigger().whileTrue(new ExtendWinchCommand(.1));
 
-    driverController.rightTrigger().onChange(new GrabCageCommand(.1));
-    driverController.leftTrigger().onChange(new GrabCageCommand(-1.));
+    driverController.rightBumper().whileTrue(new GrabCageCommand(.1));
+    driverController.leftBumper().whileTrue(new GrabCageCommand(-1.));
      
   }
 
