@@ -75,9 +75,7 @@ public class RobotContainer
     // Configure the trigger bindings
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
-
-    autoChooser = AutoBuilder.buildAutoChooser();
-    autoChooser.setDefaultOption("NOTHING!!!", new InstantCommand());
+    autoChooser = AutoBuilder.buildAutoChooser("Pass The Line Auto");
  
     driveTrain.setDefaultCommand(new RunCommand(
       //left joystick controls translation
