@@ -21,8 +21,6 @@ import java.io.File;
 import swervelib.SwerveInputStream;
 
 
-
-
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.climb.*;
 import frc.robot.subsystems.elevator.*;
@@ -55,77 +53,19 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer
 {
+  //Define Subsystems
+  public static SwerveSubsystem driveTrain = new SwerveSubsystem();
+  public static ClimberSubsystem climber = new ClimberSubsystem();
+  public static ElevatorSubsystem elevator = new ElevatorSubsystem();
+  public static EndEffectorSubsystem endEffector = new EndEffectorSubsystem();
 
-  public static PowerDistribution pdh;
+  //Define Controllers
+  public static CommandXboxController driverController = new CommandXboxController(0);
+  public static CommandXboxController operatorController = new CommandXboxController(1);
 
-  public static SwerveSubsystem driveTrain;
-  public static ClimberSubsystem climber;
-  public static ElevatorSubsystem elevator;
-  public static EndEffectorSubsystem endEffector;
-
-  public static CommandXboxController driverController;
-  public static CommandXboxController operatorController;
-
+  //Auto Chooser
   private final SendableChooser<Command> autoChooser;
 
-
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  final         CommandXboxController driverXbox = new CommandXboxController(0);
-  //adding a operator controller and trying to get it to work
-  final       CommandXboxController operatorXbox = new CommandXboxController(1);
-  // The robot's subsystems and commands are defined here...
-  private final SwerveSubsystem       drivebase  = new SwerveSubsystem();
-
-  
-  /**
-   * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
-   */
-  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                                                                () -> driverXbox.getLeftY() * -1,
-                                                                () -> driverXbox.getLeftX() * -1)
-                                                            .withControllerRotationAxis(driverXbox::getRightX)
-                                                            .deadband(OperatorConstants.DEADBAND)
-                                                            .scaleTranslation(0.8)
-                                                            .allianceRelativeControl(true);
-
-  /**
-   * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
-   */
-  SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(driverXbox::getRightX,
-                                                                                             driverXbox::getRightY)
-                                                           .headingWhile(true);
-
-  /**
-   * Clone's the angular velocity input stream and converts it to a robotRelative input stream.
-   */
-  SwerveInputStream driveRobotOriented = driveAngularVelocity.copy().robotRelative(true)
-                                                             .allianceRelativeControl(false);
-
-  SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                                                                        () -> -driverXbox.getLeftY(),
-                                                                        () -> -driverXbox.getLeftX())
-                                                                    .withControllerRotationAxis(() -> driverXbox.getRawAxis(
-                                                                        2))
-                                                                    .deadband(OperatorConstants.DEADBAND)
-                                                                    .scaleTranslation(0.8)
-                                                                    .allianceRelativeControl(true);
-  // Derive the heading axis with math!
-  SwerveInputStream driveDirectAngleKeyboard     = driveAngularVelocityKeyboard.copy()
-                                                                               .withControllerHeadingAxis(() ->
-                                                                                                              Math.sin(
-                                                                                                                  driverXbox.getRawAxis(
-                                                                                                                      2) *
-                                                                                                                  Math.PI) *
-                                                                                                              (Math.PI *
-                                                                                                               2),
-                                                                                                          () ->
-                                                                                                              Math.cos(
-                                                                                                                  driverXbox.getRawAxis(
-                                                                                                                      2) *
-                                                                                                                  Math.PI) *
-                                                                                                              (Math.PI *
-                                                                                                               2))
-                                                                               .headingWhile(true);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -134,17 +74,7 @@ public class RobotContainer
   {
     // Configure the trigger bindings
     configureBindings();
-    pdh = new PowerDistribution();
     DriverStation.silenceJoystickConnectionWarning(true);
-    NamedCommands.registerCommand("test", Commands.print("I EXIST"));
-    
-    driveTrain = new SwerveSubsystem();
-    climber = new ClimberSubsystem();
-    elevator = new ElevatorSubsystem();
-    endEffector = new EndEffectorSubsystem();
-
-    driverController = new CommandXboxController(OperatorConstants.DRIVER_PORT);
-    operatorController = new CommandXboxController(OperatorConstants.OPERATOR_PORT);
 
     autoChooser = AutoBuilder.buildAutoChooser();
     autoChooser.setDefaultOption("NOTHING!!!", new InstantCommand());
@@ -157,17 +87,15 @@ public class RobotContainer
 
 
     climber.setDefaultCommand(new RunCommand(() -> {
-    }));
+    }, climber));
 
     elevator.setDefaultCommand(new RunCommand(() -> {
       elevator.setSpeed(-operatorController.getLeftY()*.1); //Multiply by .1 for testing
-    }));
+    }, elevator));
 
     endEffector.setDefaultCommand(new RunCommand(() -> {
       endEffector.setSpeedEndEffectorTilt(-operatorController.getRightY()*.1);  //We are using this to test, the .1 is to make it go slow
-    }));
-
-
+    }, endEffector));
   }
  
   /**
@@ -203,27 +131,19 @@ public class RobotContainer
     driverController.leftBumper().whileTrue(new GrabCageCommand(-1.));
      
   }
-
+  public void setMotorBrake(boolean brake)
+  {
+    driveTrain.setMotorBrake(brake);
+  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
    */
-  // public Command getAutonomousCommand()
-  // {
-  //   // An example command will be run in autonomous
-  //   return drivebase.getAutonomousCommand("New Auto");
-  // }
-
-  public void setMotorBrake(boolean brake)
-  {
-    drivebase.setMotorBrake(brake);
-  }
   public Command getAutonomousCommand()
   {
-    // An example command will be run in autonomous
-    return drivebase.getAutonomousCommand("Testpath");
+    // Pass the auto line for points
+    return autoChooser.getSelected();
   }
-  //code stolen from example from github
 }
 
