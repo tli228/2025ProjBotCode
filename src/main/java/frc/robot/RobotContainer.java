@@ -66,6 +66,16 @@ public class RobotContainer
   //Auto Chooser
   private final SendableChooser<Command> autoChooser;
 
+  /**
+   * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
+   */
+  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(driveTrain.getSwerveDrive(),
+                                                                () -> driverController.getLeftY() * -1,
+                                                                () -> driverController.getLeftX() * -1)
+                                                            .withControllerRotationAxis(driverController::getRightX)
+                                                            .deadband(OperatorConstants.DEADBAND)
+                                                            .scaleTranslation(0.8)
+                                                            .allianceRelativeControl(true);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -76,12 +86,10 @@ public class RobotContainer
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
     autoChooser = AutoBuilder.buildAutoChooser("Pass The Line Auto");
- 
-    driveTrain.setDefaultCommand(new RunCommand(
-      //left joystick controls translation
-      //right joystick controls rotation of the robot
-      () -> driveTrain.driveCommand(-driverController.getLeftY(), driverController.getLeftX(), driverController.getRightX()),
-      driveTrain));
+
+    Command driveFieldOrientedAnglularVelocity = driveTrain.driveFieldOriented(driveAngularVelocity);
+
+    driveTrain.setDefaultCommand(driveFieldOrientedAnglularVelocity);
 
 
     climber.setDefaultCommand(new RunCommand(() -> {
@@ -105,7 +113,7 @@ public class RobotContainer
    */
   private void configureBindings()
   {
-     
+    
     //To do: Set Buttons, Set Speeds, Verify Directions
 
     // Operator Controls
