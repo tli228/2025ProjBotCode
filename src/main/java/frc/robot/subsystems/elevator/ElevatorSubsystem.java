@@ -3,11 +3,14 @@ package frc.robot.subsystems.elevator;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -15,9 +18,10 @@ import frc.robot.Constants.CANConfig;
 
 public class ElevatorSubsystem extends SubsystemBase
 {
-    private final SparkMax elevator1 = new SparkMax(CANConfig.ELEVATOR_LEFT, MotorType.kBrushless);
-    private final SparkMax elevator2 = new SparkMax(CANConfig.ELEVATOR_RIGHT, MotorType.kBrushless);
-    private final SparkMax endEffectorTilt = new SparkMax(CANConfig.END_EFFECTOR_TILT, MotorType.kBrushless);
+    public DigitalInput elevatorLowerSwitch;
+
+    public final SparkMax elevator1 = new SparkMax(CANConfig.ELEVATOR_LEFT, MotorType.kBrushless);
+    public final SparkMax elevator2 = new SparkMax(CANConfig.ELEVATOR_RIGHT, MotorType.kBrushless);
 
     private SparkMaxConfig elevator1Config = new SparkMaxConfig();
     private SparkMaxConfig elevator2Config = new SparkMaxConfig();
@@ -29,10 +33,12 @@ public class ElevatorSubsystem extends SubsystemBase
 
     private double inchesPerEncoder = (endingHeight - startingHeight)/(endingEncoder - startingEncoder);
 
-    private PIDController elevatorPID = new PIDController(.5,0,0);
+   private PIDController elevatorPID = new PIDController(.8,0,0);
     
     public ElevatorSubsystem()
     {
+        this.elevatorLowerSwitch = new DigitalInput(2);
+
         elevator1Config.inverted(true);
         elevator2Config.inverted(false);
         elevator1Config.idleMode(IdleMode.kBrake);
@@ -43,20 +49,30 @@ public class ElevatorSubsystem extends SubsystemBase
     }
 
     public void goToHeight(double height){
-        height = height - 15.25; //15.25 is starting height
-        double voltage = elevatorPID.calculate(this.getHeight(), height);
-        if(Math.abs(voltage) > 3){
-            voltage = (voltage)/Math.abs(voltage)*3;
+        double voltage = elevatorPID.calculate(elevator1.getEncoder().getPosition(), height);
+        if(Math.abs(voltage) > 12){
+            voltage = (voltage)/Math.abs(voltage)*12;
         }
         SmartDashboard.putNumber("elevator PID Voltage", voltage);
         elevator1.setVoltage(voltage);
         elevator2.setVoltage(voltage);
 
     }
+    public void resetEncoder(){
+        elevator1.getEncoder().setPosition(0);
+        elevator2.getEncoder().setPosition(0);
+    }
     public double getHeight(){
         return elevator1.getEncoder().getPosition()*inchesPerEncoder;
     }
+    public void setVoltage(double voltage) {
+        elevator1.setVoltage(voltage);
+        elevator2.setVoltage(voltage);
+    }
 
+    public boolean atSetpoint(){
+        return elevatorPID.atSetpoint();
+    }
 
     public void setSpeedElevator1(double speed) 
     {
@@ -68,16 +84,19 @@ public class ElevatorSubsystem extends SubsystemBase
         elevator2.set(speed);
     }
 
-    public void setSpeedEndEffectorTilt(double speed){
-        endEffectorTilt.set(speed);
-    }
-
     public void setSpeed(double speed){
         elevator1.set(speed);
         elevator2.set(speed);
     }
 
-    //elevator positions
+
+    public Boolean lowerLimitReached() {
+        if(elevatorLowerSwitch.get())
+            return false;
+            else{
+            return true;
+            }
+    }
     
 
     @Override
@@ -85,5 +104,6 @@ public class ElevatorSubsystem extends SubsystemBase
     {
         SmartDashboard.putNumber("Elevator Motor1 Position", elevator1.getEncoder().getPosition());
         SmartDashboard.putNumber("Elevator Motor2 Position", elevator2.getEncoder().getPosition());
+        SmartDashboard.putBoolean("Elevator Limit Switch", lowerLimitReached());
     }
 }

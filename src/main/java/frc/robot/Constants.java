@@ -46,6 +46,34 @@ public final class Constants
     public static final PIDConstants DRIVE_PID = new PIDConstants(0.5, 0, 0);
     public static final PIDConstants TURN_PID = new PIDConstants(0.5, 0, 0);
   }
+  public static class ElevatorConstants{
+    public static final double L1Height = 20;
+    public static final double L2Height = 173;
+    public static final double L3Height = 302;
+    public static final double L4Height = 507;
+    public static final double A1Height = 104;
+    public static final double A2Height = 165;
+  }
+  public static class tiltConstants{
+    public static double startingHeight = 15.25;
+    public static double endingHeight = 59.25;
+    public static double startingEncoder = 0;
+    public static double endingEncoder = 110;
+
+    public static double inchesPerEncoder = (endingHeight - startingHeight)/(endingEncoder - startingEncoder);
+
+    public static final double tiltOffset = -5.928567; //Please put this in degrees and change it according to what you measure.
+
+    public static final double tiltMinSpeed = 1;
+    public static final double tiltMaxSpeed = 2.5;
+
+    public static final double tiltL1 = 3.380949;
+    public static final double tiltL2 = 4.85710;
+    public static final double tiltL3 = .928572;
+    public static final double tiltL4 = 3.499997;
+    public static final double tiltA1 = 22.118935;
+    public static final double tiltA2 = 22.118935;
+  }
 
   public static class SystemConfig {
     public static final PIDController PIVOT_PID = new PIDController(0.1, 0, 0);
@@ -55,7 +83,7 @@ public final class Constants
     public static final double SHOOTER_TOLERANCE = 2; // deg
     public static final double ELEVATOR_TOLERANCE = 0.1; // m
 
-    public static final double ELEVATOR_SPEED = 0.5;
+    public static final double ELEVATOR_SPEED = 0.7;
     public static final double PIVOT_SPEED = 0.5;
     public static final double SHOOTER_SPEED = 0.5;
     public static final double GRABBER_SPEED = 0.5;
@@ -74,7 +102,7 @@ public final class Constants
     public static final double SHOOTER_INTAKE_TIME = 0.5;
     public static final double CORAL_INTAKE_TIME = 1.0;
     public static final double CORAL_OUTTAKE_TIME = 1.0;
-    public static final double GRABBER_TIME = 3.0;
+    public static final double GRABBER_TIME = 1.0;
 
     public static final double CLIMBER_DEFAULT_POSITION = 0;
     public static final double CLIMBER_CLIMB_POSITION = 0.5;
@@ -97,6 +125,7 @@ public final class Constants
 
   public static class OperatorConstants
   {
+
 
     // Joystick Deadband
     public static final double DEADBAND        = 0.1;

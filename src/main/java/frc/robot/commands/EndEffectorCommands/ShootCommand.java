@@ -14,7 +14,9 @@ public class ShootCommand extends Command
     }
 
     @Override
-    public void initialize() {}
+    public void initialize() {
+        RobotContainer.endEffector.setSpeedEndEffectorMotor(0);
+    }
 
     @Override
     public void execute() 
@@ -23,7 +25,9 @@ public class ShootCommand extends Command
     }
 
     @Override
-    public void end(boolean interrupted) {}
+    public void end(boolean interrupted) {
+        RobotContainer.endEffector.setSpeedEndEffectorMotor(0);
+    }
 
     @Override
     public boolean isFinished() {

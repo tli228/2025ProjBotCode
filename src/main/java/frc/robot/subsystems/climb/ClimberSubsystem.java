@@ -55,6 +55,7 @@ package frc.robot.subsystems.climb;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -65,12 +66,16 @@ import frc.robot.Constants.CANConfig;
 
 public class ClimberSubsystem extends SubsystemBase
 {
+    DigitalInput winchLowerSwitch;
+
     private final SparkMax climberWinch;
     private final SparkMax climberGrab;
     private Servo climberServo = new Servo(0);
     
     public ClimberSubsystem()
     {
+        winchLowerSwitch = new DigitalInput(1);
+
         climberWinch = new SparkMax(CANConfig.CLIMB_WINCH, MotorType.kBrushless);
         climberGrab = new SparkMax(CANConfig.CLIMB_GRAB, MotorType.kBrushless);
         climberServo.set(0);
@@ -95,11 +100,29 @@ public class ClimberSubsystem extends SubsystemBase
         climberServo.set(.25);
     }
 
+    public Boolean lowerLimitReachedWinch() {
+        if(winchLowerSwitch.get())
+        return false;
+        else{
+        return true;
+        }
+    }
+    
+
     @Override
     public void periodic()
     {
         SmartDashboard.putNumber("Climber Servo Position", climberServo.get());
         SmartDashboard.putNumber("Climber Winch Position", climberWinch.getEncoder().getPosition());
+        SmartDashboard.putBoolean("Winch Limit Switch", lowerLimitReachedWinch());
+    }
+
+    public void setSpeed(double speed) {
+        climberWinch.set(speed);
+    }
+
+    public void resetEncoder() {
+        climberWinch.getEncoder().setPosition(0);
     }
 }
 

@@ -37,9 +37,11 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import frc.robot.subsystems.drive.DriveSubsystem;
@@ -58,6 +60,7 @@ public class RobotContainer
   public static ClimberSubsystem climber = new ClimberSubsystem();
   public static ElevatorSubsystem elevator = new ElevatorSubsystem();
   public static EndEffectorSubsystem endEffector = new EndEffectorSubsystem();
+  public static Intake intake = new Intake();
 
   //Define Controllers
   public static CommandXboxController driverController = new CommandXboxController(0);
@@ -86,21 +89,72 @@ public class RobotContainer
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
     autoChooser = AutoBuilder.buildAutoChooser("Pass The Line Auto");
-
+    SmartDashboard.putData("Auto Mode", autoChooser);
     Command driveFieldOrientedAnglularVelocity = driveTrain.driveFieldOriented(driveAngularVelocity);
 
     driveTrain.setDefaultCommand(driveFieldOrientedAnglularVelocity);
 
 
     climber.setDefaultCommand(new RunCommand(() -> {
+         // Driver Controls
+    driverController.y().onTrue(new InstantCommand(() -> {climber.LatchServo();}));
+    driverController.b().onTrue(new InstantCommand(() -> {climber.UnlatchServo();}));
+
+    
+   if(driverController.rightTrigger().getAsBoolean()){
+    if(climber.lowerLimitReachedWinch()){
+      climber.setSpeed(0);
+      climber.resetEncoder();
+    }
+    climber.setSpeed(3);
+   }
+   else if(driverController.leftTrigger().getAsBoolean()){
+    climber.setSpeed(-3);
+   }
+   else{
+    climber.setSpeed(0);
+   }
+    driverController.rightBumper().whileTrue(new GrabCageCommand(1.0));
+    driverController.leftBumper().whileTrue(new GrabCageCommand(-1.0));
+
     }, climber));
 
+
+    intake.setDefaultCommand(new RunCommand(() -> {}, intake));
+
     elevator.setDefaultCommand(new RunCommand(() -> {
-      elevator.setSpeed(-operatorController.getLeftY()*.1); //Multiply by .1 for testing
+      //if the lower limit's been reached don't allow them to go down but allow them to go up. 
+      if(elevator.lowerLimitReached() == true && -operatorController.getLeftY() <= 0)  {
+         //Multiply by .1 for testing
+        elevator.resetEncoder();
+        elevator.setSpeed(0);
+      }
+      else{
+        // if(endEffector.endEffectorTilt.getEncoder().getPosition() > 5.6)
+        // {
+           elevator.setSpeed(-operatorController.getLeftY()*3);
+        // }
+        // else{
+        //   endEffector.goToTilt(5.7);
+        // }
+      }
+    
     }, elevator));
 
     endEffector.setDefaultCommand(new RunCommand(() -> {
-      endEffector.setSpeedEndEffectorTilt(-operatorController.getRightY()*.1);  //We are using this to test, the .1 is to make it go slow
+      if(elevator.lowerLimitReached() == true /*&& -operatorController.getLeftY() <= 0*/) {        
+        //if((endEffector.endEffectorTilt.getEncoder().getPosition() <= -.8)||(endEffector.endEffectorTilt.getEncoder().getPosition() >= 0 )){
+          //if(endEffector.atSetPoint() == false){
+            endEffector.goToTilt(-.4);
+          //}else{
+           // endEffector.setSpeedEndEffectorTilt(0);
+          //}
+        //}
+      }else if((elevator.elevator1.getEncoder().getPosition() <= 155)) {
+        endEffector.goToTilt(5.7);
+      }else{
+        endEffector.setSpeedEndEffectorTilt(-operatorController.getRightY()*.1); //We are using this to test, the .1 is to make it go slow //this is the value to make sure the end effector clears the funnel
+      }
     }, endEffector));
   }
  
@@ -117,24 +171,41 @@ public class RobotContainer
     //To do: Set Buttons, Set Speeds, Verify Directions
 
     // Operator Controls
+    Command heightL1PresetCommand = new ElevatorPreset(Constants.ElevatorConstants.L1Height,elevator);
+    Command heightL2PresetCommand = new ElevatorPreset(Constants.ElevatorConstants.L2Height,elevator);
+    Command heightL3PresetCommand = new ElevatorPreset(Constants.ElevatorConstants.L3Height,elevator);
+    Command heightL4PresetCommand = new ElevatorPreset(Constants.ElevatorConstants.L4Height,elevator);
+    //Command heightA1PresetCommand = new ElevatorPreset(Constants.ElevatorConstants.A1Height,elevator);
+    //Command heightA2PresetCommand = new ElevatorPreset(Constants.ElevatorConstants.A2Height,elevator);
+
+    Command tiltL1PresetCommand = new TiltPreset(Constants.tiltConstants.tiltL1, endEffector);
+    Command tiltL2PresetCommand = new TiltPreset(Constants.tiltConstants.tiltL2, endEffector);
+    Command tiltL3PresetCommand = new TiltPreset(Constants.tiltConstants.tiltL3, endEffector);
+    Command tiltL4PresetCommand = new TiltPreset(Constants.tiltConstants.tiltL4, endEffector);
+    //Command tiltA1PresetCommand = new TiltPreset(Constants.tiltConstants.tiltA1, endEffector);
+    //Command tiltA2PresetCommand = new TiltPreset(Constants.tiltConstants.tiltA2, endEffector);
     
-    operatorController.rightTrigger().whileTrue(new ShootCommand(-.1));
-    operatorController.leftTrigger().whileTrue(new ShootCommand(.1));
+    SequentialCommandGroup goToPresetL1 = new SequentialCommandGroup(heightL1PresetCommand, tiltL1PresetCommand);
+    SequentialCommandGroup goToPresetL2 = new SequentialCommandGroup(heightL2PresetCommand, tiltL2PresetCommand);
+    SequentialCommandGroup goToPresetL3 = new SequentialCommandGroup(heightL3PresetCommand, tiltL3PresetCommand);
+    SequentialCommandGroup goToPresetL4 = new SequentialCommandGroup(heightL4PresetCommand, tiltL4PresetCommand);
+    //SequentialCommandGroup goToPresetA1 = new SequentialCommandGroup(tiltA1PresetCommand, heightA1PresetCommand);
+    //SequentialCommandGroup goToPresetA2 = new SequentialCommandGroup(tiltA2PresetCommand, heightA2PresetCommand);
 
-    operatorController.rightBumper().whileTrue(new IntakeCommand(-.1));
-    operatorController.leftBumper().whileTrue(new IntakeCommand(.1));
+    operatorController.rightTrigger().whileTrue(new ShootCommand(-2.5));
+    operatorController.leftTrigger().whileTrue(new ShootCommand(2.5));
 
+    operatorController.rightBumper().whileTrue(new IntakeCommand(-.2));
+    operatorController.leftBumper().whileTrue(new IntakeCommand(.2));
+    operatorController.x().whileTrue(goToPresetL1);
+    operatorController.y().whileTrue(goToPresetL2);
+    operatorController.b().whileTrue(goToPresetL3);
+    operatorController.a().whileTrue(goToPresetL4);
+    //operatorController.povDown().whileTrue(goToPresetA1);
+    //operatorController.povUp().whileTrue(goToPresetA2);
 
  
-    // Driver Controls
-    driverController.y().onTrue(new InstantCommand(() -> {climber.LatchServo();}));
-    driverController.b().onTrue(new InstantCommand(() -> {climber.UnlatchServo();}));
-
-    driverController.rightTrigger().whileTrue(new ExtendWinchCommand(-.1));
-    driverController.leftTrigger().whileTrue(new ExtendWinchCommand(.1));
-
-    driverController.rightBumper().whileTrue(new GrabCageCommand(.1));
-    driverController.leftBumper().whileTrue(new GrabCageCommand(-1.));
+ 
      
   }
   public void setMotorBrake(boolean brake)
@@ -150,6 +221,7 @@ public class RobotContainer
   {
     // Pass the auto line for points
     return autoChooser.getSelected();
+    // return driveTrain.getAutonomousCommand("Pass The Line Auto");
   }
 }
 

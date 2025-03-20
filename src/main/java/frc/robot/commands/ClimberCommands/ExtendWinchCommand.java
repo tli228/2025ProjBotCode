@@ -14,7 +14,9 @@ public class ExtendWinchCommand extends Command
     }
 
     @Override
-    public void initialize() {}
+    public void initialize() {
+        RobotContainer.climber.Winch(0);
+    }
 
     @Override
     public void execute() {
@@ -22,7 +24,9 @@ public class ExtendWinchCommand extends Command
     }
 
     @Override
-    public void end(boolean interrupted) {}
+    public void end(boolean interrupted) {
+        RobotContainer.climber.Winch(0);
+    }
 
     @Override
     public boolean isFinished() {
